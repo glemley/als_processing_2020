@@ -1,0 +1,61 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Load libraries and dirs
+```{r}
+library(ALS)
+library(tidyverse)
+
+root.dir <- rprojroot::find_root("als_processing_2020.Rproj")
+als_teams.dir <- file.path(
+    "C:",
+    "Users",
+    "gmlemley",
+    "New York State Office of Information Technology Services",
+    "BWAM - ALS",
+    "2020")
+
+```
+
+Import expected_ssc and update
+```{r}
+expected_ssc <- read_csv(file.path(als_teams.dir, "expected_ssc", "smas_expected_ssc_20201230.csv")) %>% 
+  mutate(date_error = NA,
+         group = NA) %>% 
+  select(sys_sample_code, misspelled, date, date_error, project, group, data_collector, dec_sample_type, no_chemistry, why_no_chemistry)
+
+write_csv(expected_ssc, file.path(als_teams.dir, "expected_ssc", "smas_expected_ssc_20201230.csv"))
+```
+
+
+
+
+Generate report
+```{r}
+report_als_file_val(
+  .file_path = file.path(
+    "C:",
+    "Users",
+    "gmlemley",
+    "New York State Office of Information Technology Services",
+    "BWAM - ALS",
+    "2020"
+  ),
+  .output_dir = file.path("C:",
+                          "Users",
+                          "gmlemley",
+                          "Data",
+                          "als_processing_2020",
+                          "output",
+                          "validation_reports"),
+  .type = "smas-all",
+  .expected_ssc = "smas_expected_ssc_20201230.csv",
+  .ssc_verification = TRUE,
+  .weekly_summaries = TRUE,
+  .file_summary = TRUE
+)
+
+
+```

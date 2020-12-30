@@ -1,0 +1,59 @@
+---
+title: "als_interim_processing_20201208"
+output: html_document
+---
+
+
+From Zach Teams chat, 12/8/20
+```{r}
+library(dplyr)
+library(ALS)
+# Establish the file path directory.
+data_dir <- file.path(
+  "C:",
+  "Users",
+  "zmsmith.000",
+  "New York State Office of Information Technology Services",
+  "BWAM - ALS",
+  "2020",
+  "lab_reports"#,
+  # "lci"
+)
+# Vector of ALS Zip file names.
+als_files <- list.files(data_dir,
+                        full.names = TRUE,
+                        pattern = ".zip$",
+                        recursive = TRUE)
+# Read in ALS data
+als_list <- lapply(als_files, ALS::as_als)
+# test <- as_als(als_files[grepl("R2005386", als_files)])
+# Append the ALS objects together.
+als <- ALS::append_als_objs(als_list)
+# Drop intermediate objects.
+# rm("als_files", "als_list")
+# Join the sample and result tables together by sys_sample_code.
+als_df <- merge(als$sample,
+                  als$result,
+                  by = "sys_sample_code",
+                  all = TRUE) %>%
+  dplyr::mutate(date = as.Date(sample_date))
+# File path to expected sys_sample_code table.
+essc_path <- file.path(
+  "C:",
+  "Users",
+  "zmsmith.000",
+  "New York State Office of Information Technology Services",
+  "BWAM - ALS",
+  "2020",
+  "expected_ssc",
+  "lmas_expected_ssc_2020-12-08.csv"
+)
+# Import the expected sys_sample_code.
+essc_df <- read_expected_ssc(.path = essc_path) %>%
+  dplyr::mutate(date = as.Date(date, "%m/%d/%Y"),
+                date_error = as.Date(date_error, "%m/%d/%Y"))
+# Apply the corrections to all of the data.
+all_df <- apply_corrections(.target_df = als_df,
+                            .corrections_df = essc_df)
+```
+

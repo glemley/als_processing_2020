@@ -1,0 +1,52 @@
+---
+title: "als_load_append"
+output: html_document
+---
+
+# Directions: file:///C:/Users/gmlemley/New%20York%20State%20Office%20of%20Information%20Technology%20Services/BWAM%20-%20ALS/load_append_instructions.html
+
+Load libraries
+```{r}
+library(ALS)
+library(tidyverse)
+```
+
+Set input dir
+```{r}
+data_dir <- file.path(
+    "C:",
+    "Users",
+    "gmlemley",
+    "New York State Office of Information Technology Services",
+    "BWAM - ALS",
+    "2020",
+    "lab_reports"
+  )
+
+# Vector of ALS Zip file names.
+als_files <- list.files(file.path(data_dir,
+                                  "ribs"),
+                          full.names = TRUE,
+                          pattern = ".zip$")
+
+
+```
+
+Create sample, result, and batch dataframes
+```{r}
+als_list <- lapply(als_files, ALS::as_als)
+
+als <- ALS::append_als_objs(als_list)
+
+result <- als[["result"]]
+sample <- als[["sample"]]
+batch <- als[["batch"]]
+
+rm("als_files", "als_list")
+```
+
+Export...
+```{r}
+
+```
+
